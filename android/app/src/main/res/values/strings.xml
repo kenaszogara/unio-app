@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">UNIO App</string>
+    <string name="facebook_app_id">219071610028718</string>
+    <string name="fb_login_protocol_scheme">fb219071610028718</string>
+</resources>

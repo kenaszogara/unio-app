@@ -50,6 +50,7 @@ dependencies:
   sliver_tools: ^0.2.4
   flutter_sticky_header: ^0.6.0
   font_awesome_flutter: ^9.1.0
+  flutter_facebook_login: ^3.0.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.8.1

@@ -315,12 +315,12 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                           shape: StadiumBorder(),
                         ),
                         SizedBox(height: 50),
-                        // Text(
-                        //   'Or using social media',
-                        //   style: Theme.of(context).textTheme.body1,
-                        // ),
-                        // SizedBox(height: 20),
-                        // new SocialMediaWidget()
+                        Text(
+                          'Or using social media',
+                          style: Theme.of(context).textTheme.body1,
+                        ),
+                        SizedBox(height: 20),
+                        new SocialMediaWidget()
                       ],
                     ),
                   ),
