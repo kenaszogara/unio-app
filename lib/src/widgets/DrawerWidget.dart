@@ -123,7 +123,7 @@ class DrawerWidget extends StatelessWidget {
                     : 'Guest User',
                 style: Theme.of(context).textTheme.title,
               ),
-              accountEmail: (Global.instance.apiToken != null)
+              accountEmail: (Global.instance.authEmail != null)
                   ? Text(
                       Global.instance.authEmail,
                       style: Theme.of(context).textTheme.caption,

@@ -49,7 +49,7 @@ class User {
     return User.advanced(
         Global.instance.authName ?? 'Guest User',
         Global.instance.authEmail ?? '-',
-        Global.instance.authGender ?? '-',
+        Global.instance.authGender ?? 'Hidden',
         Global.instance.authBirthDate,
         Global.instance.authBirthPlace ?? '-',
         Global.instance.authPicture ?? '-',

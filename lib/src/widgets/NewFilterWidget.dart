@@ -421,46 +421,46 @@ class _NewFilterWidgetState extends State<NewFilterWidget> {
                     ),
                   )
                 : Container(),
-            (_categoryGroup == "University" ||
-                    _categoryGroup == "Field of study" ||
-                    _categoryGroup == "Vendor")
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
-                    child: CustomDropdownWidget(
-                      context: context,
-                      items: stateitem,
-                      label: "State",
-                      hint: "State",
-                      // popupItemDisabled: (String s) => s.startsWith('I'),
-                      onChanged: (value) {
-                        setState(() {
-                          _valState = value;
-                          var estateSelected2 = propinsi.firstWhere(
-                              (element) => element['name'] == _valCountry);
-                          _valStateid = "";
-                          _valCountryid = estateSelected2['id'].toString();
-                          if (_valState != null) {
-                            var estateSelected = state.firstWhere(
-                                (element) => element['name'] == value);
-                            _valStateid = estateSelected['id'].toString();
+            // (_categoryGroup == "University" ||
+            //         _categoryGroup == "Field of study" ||
+            //         _categoryGroup == "Vendor")
+            //     ? Padding(
+            //         padding: const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
+            //         child: CustomDropdownWidget(
+            //           context: context,
+            //           items: stateitem,
+            //           label: "State",
+            //           hint: "State",
+            //           // popupItemDisabled: (String s) => s.startsWith('I'),
+            //           onChanged: (value) {
+            //             setState(() {
+            //               _valState = value;
+            //               var estateSelected2 = propinsi.firstWhere(
+            //                   (element) => element['name'] == _valCountry);
+            //               _valStateid = "";
+            //               _valCountryid = estateSelected2['id'].toString();
+            //               if (_valState != null) {
+            //                 var estateSelected = state.firstWhere(
+            //                     (element) => element['name'] == value);
+            //                 _valStateid = estateSelected['id'].toString();
 
-                            // someStuffs.firstWhereOrNull((element) => element.id == 'Cat');
-                            // print(estateSelected);
-                            print(value);
-                            // print(estateSelected['id']);
+            //                 // someStuffs.firstWhereOrNull((element) => element.id == 'Cat');
+            //                 // print(estateSelected);
+            //                 print(value);
+            //                 // print(estateSelected['id']);
 
-                          }
-                          print(value);
-                          // if (_categoryGroup == "Field of study") {
-                          getuniversity(_valCountryid, _valStateid);
-                          // }
-                          // getuniversity(countryid, stateid)
-                        });
-                      },
-                      selectedItem: _valState,
-                    ),
-                  )
-                : Container(),
+            //               }
+            //               print(value);
+            //               // if (_categoryGroup == "Field of study") {
+            //               getuniversity(_valCountryid, _valStateid);
+            //               // }
+            //               // getuniversity(countryid, stateid)
+            //             });
+            //           },
+            //           selectedItem: _valState,
+            //         ),
+            //       )
+            //     : Container(),
             (_categoryGroup == "#Field of study")
                 ? Padding(
                     padding: const EdgeInsets.only(left: 20.0),

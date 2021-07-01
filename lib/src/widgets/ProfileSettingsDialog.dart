@@ -108,7 +108,7 @@ class _ProfileSettingsDialogState extends State<ProfileSettingsDialog> {
                             return DropdownButtonFormField<String>(
                               decoration: getInputDecoration(
                                   hintText: 'Female', labelText: 'Gender'),
-                              hint: Text("Select Gender"),
+                              hint: Text("Sex"),
                               value: widget.user.gender,
                               onChanged: (input) {
                                 setState(() {
@@ -122,6 +122,8 @@ class _ProfileSettingsDialogState extends State<ProfileSettingsDialog> {
                                     value: 'Male', child: Text('Male')),
                                 new DropdownMenuItem(
                                     value: 'Female', child: Text('Female')),
+                                new DropdownMenuItem(
+                                    value: 'Hidden', child: Text('Hidden')),
                               ],
                             );
                           },
@@ -331,7 +333,9 @@ class _ProfileSettingsDialogState extends State<ProfileSettingsDialog> {
                 child: new Text("Ok"),
                 onPressed: () {
                   print('lala');
-                  Navigator.of(context).pushNamed(
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                  Navigator.of(context).popAndPushNamed(
                     '/Setting',
                   );
                 },

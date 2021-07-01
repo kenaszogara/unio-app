@@ -272,6 +272,8 @@ class _SignInWidgetState extends State<SignInWidget> {
 
                                 EasyLoading.dismiss();
 
+                                Navigator.of(context).popUntil(
+                                    (route) => !route.navigator.canPop());
                                 Navigator.of(context)
                                     .pushReplacementNamed('/Tabs');
                               }

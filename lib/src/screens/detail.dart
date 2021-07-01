@@ -32,7 +32,11 @@ class DetailWidget extends StatefulWidget {
 class _DetailWidgetState extends State<DetailWidget>
     with SingleTickerProviderStateMixin {
   dynamic data;
+  dynamic detailID;
   String detailType;
+
+  Function onBookmark;
+
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   TabController _tabController;
   int _tabIndex = 0;
@@ -74,8 +78,13 @@ class _DetailWidgetState extends State<DetailWidget>
 
   @override
   void initState() {
-    detailType = widget.routeArgument.param2;
-    getData(widget.routeArgument.param1, detailType);
+    detailID = widget.routeArgument.param1[0];
+    detailType = widget.routeArgument.param1[1];
+
+    onBookmark = widget.routeArgument.param2;
+
+    getData(detailID, detailType);
+
     _tabController =
         TabController(length: 2, initialIndex: _tabIndex, vsync: this);
     _tabController.addListener(_handleTabSelection);
@@ -101,8 +110,8 @@ class _DetailWidgetState extends State<DetailWidget>
         headers: headers,
         body: jsonEncode({
           'user_id': Global.instance.authId,
-          'entity_id': widget.routeArgument.param1,
-          'entity_type': widget.routeArgument.param2,
+          'entity_id': detailID,
+          'entity_type': detailType,
         }));
     print(response.body);
 
@@ -118,6 +127,9 @@ class _DetailWidgetState extends State<DetailWidget>
         setState(() {
           isBookmarked = !isBookmarked;
         });
+
+        // update bookmark in directory
+        onBookmark();
       });
 
     if (response.statusCode != 200)
@@ -131,6 +143,8 @@ class _DetailWidgetState extends State<DetailWidget>
           isBookmarked = !isBookmarked;
         });
       });
+
+    return null;
   }
 
   void _launchURL(url) async {
@@ -279,10 +293,13 @@ class _DetailWidgetState extends State<DetailWidget>
                                           if (Global.instance.apiToken !=
                                               null) {
                                             addBookmark();
+
                                             setState(() {
                                               isBookmarked = !isBookmarked;
                                             });
-
+                                            
+                                            // update bookmark in directory
+                                            onBookmark();
                                           } else {
                                             _showNeedLoginAlert(context);
                                           }

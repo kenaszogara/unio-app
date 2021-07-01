@@ -268,7 +268,7 @@ class _AdviceWidgetState extends State<AdviceWidget> {
                 });
               }
 
-              await getBookmarkedMajors();
+              // await getBookmarkedMajors();
             } else {
               _fosList.clear();
               selectedCip.clear();
@@ -284,7 +284,8 @@ class _AdviceWidgetState extends State<AdviceWidget> {
               print('majors: $i id: $id, check: $check');
 
               setState(() {
-                if (jsonMajors[i]['is_checked'] == "0" && jsonMajors[i]['level'] != null) {
+                if (jsonMajors[i]['is_checked'] == "0" &&
+                    jsonMajors[i]['level'] != null) {
                   _adviceList.list.add(new Advice(
                     universityLogo: jsonMajors[i]['university_logo'],
                     universityId: jsonMajors[i]['university_id'],
@@ -294,6 +295,17 @@ class _AdviceWidgetState extends State<AdviceWidget> {
                     level: jsonMajors[i]['level'],
                     fos: jsonMajors[i]['fos'],
                     isChecked: false,
+                  ));
+                } else {
+                  _adviceList.list.add(new Advice(
+                    universityLogo: jsonMajors[i]['university_logo'],
+                    universityId: jsonMajors[i]['university_id'],
+                    universityName: jsonMajors[i]['university_name'],
+                    majorId: jsonMajors[i]['major_id'],
+                    majorName: jsonMajors[i]['major_name'],
+                    level: jsonMajors[i]['level'],
+                    fos: jsonMajors[i]['fos'],
+                    isChecked: true,
                   ));
                 }
               });
@@ -485,9 +497,9 @@ class _AdviceWidgetState extends State<AdviceWidget> {
     print(response.body);
 
     // return response;
-    if (response.statusCode == 200) {
+    if (response.statusCode != 200) {
       setState(() {
-        _bookmarkedList.list.add(entity);
+        entity.isChecked = !entity.isChecked;
       });
     }
   }
@@ -519,9 +531,10 @@ class _AdviceWidgetState extends State<AdviceWidget> {
     print(response.statusCode);
     print(response.body);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode != 200) {
       setState(() {
-        _adviceList.list.add(entity);
+        // _adviceList.list.add(entity);
+        entity.isChecked = !entity.isChecked;
       });
     }
   }
@@ -694,7 +707,7 @@ class _AdviceWidgetState extends State<AdviceWidget> {
                                     heroTag: 'bookmark_list',
                                     advice:
                                         _bookmarkedList.list.elementAt(index),
-                                    onDismissed: () {
+                                    onBookmarked: () {
                                       setState(() {
                                         Advice bmItem = _bookmarkedList.list
                                             .elementAt(index);
@@ -731,7 +744,7 @@ class _AdviceWidgetState extends State<AdviceWidget> {
                           softWrap: false,
                           style: Theme.of(context).textTheme.display1,
                         ),
-                        subtitle: Text('Swipe items to bookmark'),
+                        // subtitle: Text('Swipe items to bookmark'),
                       ),
                     ),
                     Container(
@@ -753,17 +766,20 @@ class _AdviceWidgetState extends State<AdviceWidget> {
                                 Icons.star,
                                 color: Colors.white,
                               ),
-                              onDismissed: () {
+                              onBookmarked: () {
                                 setState(() {
                                   // add bookmark
                                   Advice bmItem =
                                       _adviceList.list.elementAt(index);
-                                  bmItem.isChecked = true;
+
+                                  setState(() {
+                                    bmItem.isChecked = !bmItem.isChecked;
+                                  });
 
                                   // _bookmarkedList.list.add(bmItem);
                                   addItemToBookmark(bmItem);
 
-                                  _adviceList.list.removeAt(index);
+                                  // _adviceList.list.removeAt(index);
                                 });
                               },
                             );
@@ -861,8 +877,10 @@ class _AdviceWidgetState extends State<AdviceWidget> {
                               if (value != null) {
                                 print("nilai=" + value.toString());
                                 var selected = countryRes.firstWhere(
-                                    (element) => element['country_name'] == value);
-                                _valCountryId = selected['country_id'].toString();
+                                    (element) =>
+                                        element['country_name'] == value);
+                                _valCountryId =
+                                    selected['country_id'].toString();
                                 _valState = '';
                                 getState(selected['country_id'].toString());
                                 countryId = selected['country_id'];

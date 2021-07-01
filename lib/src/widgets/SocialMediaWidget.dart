@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:Unio/src/utilities/global.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
@@ -7,11 +8,17 @@ import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class SocialMediaWidget extends StatelessWidget {
   const SocialMediaWidget({
     Key key,
   }) : super(key: key);
+
+  void _launchURL(url) async {
+    await canLaunch(url) ? await launch(url) : throw 'Could not launch url';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +31,10 @@ class SocialMediaWidget extends StatelessWidget {
           child: InkWell(
             onTap: () {
               _facebookLogin(context);
+              // Navigator.of(context).push(MaterialPageRoute(
+              //     builder: (BuildContext context) => WebViewExample()));
+              // _launchURL(
+              //     'https://primavisiglobalindo.net/unio/public/auth/facebook');
             },
             child: Image.asset('img/facebook.png'),
           ),
@@ -67,14 +78,14 @@ class SocialMediaWidget extends StatelessWidget {
       case FacebookLoginStatus.loggedIn:
         final token = result.accessToken.token;
         final graphResponse = await http.get(Uri.parse(
-            'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email&access_token=${token}'));
+            'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email&access_token=$token'));
         final profile = json.decode(graphResponse.body);
 
         print(profile);
+        var email = profile.containsKey('email') ? profile['email'] : 'test';
 
         // showOkAlertDialog(context: context, message: profile['name']);
-        _login(context, 'facebook', profile['id'], profile['email'],
-            profile['name']);
+        _login(context, 'facebook', profile['id'], email, profile['name']);
         break;
       case FacebookLoginStatus.cancelledByUser:
         // showOkAlertDialog(context: context, message: "Login canceled");
@@ -121,7 +132,7 @@ class SocialMediaWidget extends StatelessWidget {
           formattedDate =
               DateTime.parse(DateFormat('yyyy-MM-dd').format(date2));
         } else {
-          formattedDate = DateTime(2000, 01, 01);
+          formattedDate = null;
         }
 
         var authId = data['id'].toString();
@@ -146,37 +157,31 @@ class SocialMediaWidget extends StatelessWidget {
         // add hc to global
         Global.instance.authHc = data['biodata']['hc'];
 
-        storage.write(key: 'authId', value: authId ?? '1');
+        storage.write(key: 'authId', value: authId);
         storage.write(key: 'apiToken', value: data['api_token']);
-        storage.write(key: 'authEmail', value: data['email'] ?? '-');
+        storage.write(key: 'authEmail', value: data['email']);
+        storage.write(key: 'authName', value: data['biodata']['fullname']);
+        storage.write(key: 'authPicture', value: data['image_path']);
+        storage.write(key: 'authPhone', value: data['phone']);
+        storage.write(key: 'authGender', value: data['biodata']['gender']);
+        storage.write(key: 'authAddress', value: data['biodata']['address']);
         storage.write(
-            key: 'authName', value: data['biodata']['fullname'] ?? '-');
-        storage.write(key: 'authPicture', value: data['image_path'] ?? '-');
-        storage.write(key: 'authPhone', value: data['phone'] ?? '-');
+            key: 'authGraduate', value: data['biodata']['graduation_year']);
         storage.write(
-            key: 'authGender', value: data['biodata']['gender'] ?? '-');
-        storage.write(
-            key: 'authAddress', value: data['biodata']['address'] ?? '-');
-        storage.write(
-            key: 'authGraduate',
-            value: data['biodata']['graduation_year'] ?? '-');
-        storage.write(
-            key: 'authSchool', value: data['biodata']['school_origin'] ?? '-');
+            key: 'authSchool', value: data['biodata']['school_origin']);
         storage.write(key: 'authBirthDate', value: formattedDate.toString());
         storage.write(
-            key: 'authBirthPlace',
-            value: data['biodata']['birth_place'] ?? '-');
+            key: 'authBirthPlace', value: data['biodata']['birth_place']);
         storage.write(
             key: 'authIdentity',
-            value: data['biodata']['identity_number'].toString() ?? '-');
-        storage.write(
-            key: 'authReligion', value: data['biodata']['religion'] ?? '-');
+            value: data['biodata']['identity_number'].toString() ?? '');
+        storage.write(key: 'authReligion', value: data['biodata']['religion']);
 
         // add hc to storage
-        storage.write(key: 'authHc', value: data['biodata']['hc'] ?? '-');
+        storage.write(key: 'authHc', value: data['biodata']['hc']);
 
         EasyLoading.dismiss();
-
+        Navigator.of(context).popUntil((route) => !route.navigator.canPop());
         Navigator.of(context).pushReplacementNamed('/Tabs');
       }
     } else {
@@ -188,19 +193,49 @@ class SocialMediaWidget extends StatelessWidget {
     }
   }
 
-  Future<String> attemptLoginWithProvider(
+  Future<dynamic> attemptLoginWithProvider(
       String provider, dynamic id, String email, String fullName) async {
     // var url = "http://10.0.2.2:8000/api/";
     var url = SERVER_DOMAIN;
 
+    var _e = email == '' ? null : email;
+
     var res = await http
         .post(Uri.parse(url + 'login-with-provider/$provider'), body: {
       'provider_id': id,
-      'provider_email': email,
+      'provider_email': _e,
       'provider_full_name': fullName,
     });
 
-    if (res.statusCode == 200) return res.body;
-    return null;
+    print(res.toString());
+
+    // if (res.statusCode == 200) return res.body;
+    return res.body;
+  }
+}
+
+class WebViewExample extends StatefulWidget {
+  @override
+  WebViewExampleState createState() => WebViewExampleState();
+}
+
+class WebViewExampleState extends State<WebViewExample> {
+  @override
+  void initState() {
+    super.initState();
+    // Enable hybrid composition.
+    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Login Facebook'),
+      ),
+      body: WebView(
+        initialUrl: 'https://primavisiglobalindo.net/unio/public/auth/facebook',
+      ),
+    );
   }
 }

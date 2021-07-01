@@ -122,7 +122,7 @@ class _SearchBarHomeWidgetState extends State<SearchBarHomeWidget> {
                     onPressed: () async {
                       Navigator.of(context).pushNamed('/Directory',
                           arguments: new RouteArgument(argumentsList: [
-                            Category('Field of study', UiIcons.laptop, false,
+                            Category('University', UiIcons.laptop, false,
                                 Colors.orange, []),
                             myController.text
                           ]));
