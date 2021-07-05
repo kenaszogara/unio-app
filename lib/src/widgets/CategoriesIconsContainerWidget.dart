@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class CategoriesIconsContainerWidget extends StatefulWidget {
   CategoriesIconsContainerWidget(
-      {Key key, @required CategoriesList categoriesList, this.onPressed})
+      {Key key, CategoriesList categoriesList, this.onPressed})
       : super(key: key);
 
   final ValueChanged<String> onPressed;

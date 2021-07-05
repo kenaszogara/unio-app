@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "640060012639",
+    "project_id": "uniodev1",
+    "storage_bucket": "uniodev1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:640060012639:android:89024fff4d86cc9e64c3ea",
+        "android_client_info": {
+          "package_name": "com.example.unio_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "640060012639-30u51nti5ok75g6tvvqa4dj35u7hp1fe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.unio_app",
+            "certificate_hash": "559a5900d184e09a266a160019531f1bb37226c7"
+          }
+        },
+        {
+          "client_id": "640060012639-brtul9ad1jsj0uq4o07qh6ofs5vacarp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.unio_app",
+            "certificate_hash": "372097e05ec64593fb89eb0d2bb61f811a95fb83"
+          }
+        },
+        {
+          "client_id": "640060012639-e84c9d2sfek9rk3d5ne5t3k89o8s2n9g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUJC0brRO9XQdUDih3bt3UhNcPaZjnHW4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "640060012639-e84c9d2sfek9rk3d5ne5t3k89o8s2n9g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

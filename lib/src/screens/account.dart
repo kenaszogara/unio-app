@@ -218,7 +218,7 @@ class _AccountWidgetState extends State<AccountWidget> {
                         onTap: () {},
                         dense: true,
                         title: Text(
-                          'Gender',
+                          'Sex',
                           style: Theme.of(context).textTheme.body1,
                         ),
                         trailing: Text(

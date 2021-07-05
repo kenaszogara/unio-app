@@ -308,7 +308,7 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
           // if (widget.panjangarg > 2) {
           //   jsonMap = json.decode(response.body)['data']['data'];
           // } else {
-            jsonMap = json.decode(response.body)['data'];
+          jsonMap = json.decode(response.body)['data'];
           // }
 
           if (jsonMap != null) {
@@ -689,20 +689,21 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                                       borderSide: BorderSide.none),
                                 ),
                               ),
-                              (entity == 'universities' || entity == 'majors') ?
-                              Positioned(
-                                right: 30.0,
-                                child: IconButton(
-                                  onPressed: () {
-                                    openRightDrawer();
-                                  },
-                                  icon: Icon(UiIcons.filter,
-                                      size: 20,
-                                      color: Theme.of(context)
-                                          .hintColor
-                                          .withOpacity(0.5)),
-                                ),
-                              ) : SizedBox(),
+                              (entity == 'universities' || entity == 'majors')
+                                  ? Positioned(
+                                      right: 30.0,
+                                      child: IconButton(
+                                        onPressed: () {
+                                          openRightDrawer();
+                                        },
+                                        icon: Icon(UiIcons.filter,
+                                            size: 20,
+                                            color: Theme.of(context)
+                                                .hintColor
+                                                .withOpacity(0.5)),
+                                      ),
+                                    )
+                                  : SizedBox(),
                               IconButton(
                                 onPressed: () {
                                   /*Navigator.of(context).pushNamed('/Directory',
@@ -815,6 +816,11 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                                         item['isBookmarked'] =
                                             !item['isBookmarked'];
                                       });
+                                      showOkAlertDialog(
+                                          context: context,
+                                          title: item['isBookmarked']
+                                              ? 'Successfully Bookmarked'
+                                              : 'Successfully Unbookmarked');
                                     } else {
                                       _showNeedLoginAlert(context);
                                     }
@@ -904,6 +910,11 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                                         item['isBookmarked'] =
                                             !item['isBookmarked'];
                                       });
+                                      showOkAlertDialog(
+                                          context: context,
+                                          title: item['isBookmarked']
+                                              ? 'Successfully Bookmarked'
+                                              : 'Successfully Unbookmarked');
                                     } else {
                                       _showNeedLoginAlert(context);
                                     }
@@ -932,6 +943,11 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                                         item['isBookmarked'] =
                                             !item['isBookmarked'];
                                       });
+                                      showOkAlertDialog(
+                                          context: context,
+                                          title: item['isBookmarked']
+                                              ? 'Successfully Bookmarked'
+                                              : 'Successfully Unbookmarked');
                                     } else {
                                       _showNeedLoginAlert(context);
                                     }
@@ -977,6 +993,11 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                                         item['isBookmarked'] =
                                             !item['isBookmarked'];
                                       });
+                                      showOkAlertDialog(
+                                          context: context,
+                                          title: item['isBookmarked']
+                                              ? 'Successfully Bookmarked'
+                                              : 'Successfully Unbookmarked');
                                     } else {
                                       _showNeedLoginAlert(context);
                                     }
@@ -1037,10 +1058,10 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                                     // if (Global.instance.apiToken != null) {
                                     //   addBookmark(
                                     //       item['id'], 'universities', item);
-                                      setState(() {
-                                        item['isBookmarked'] =
-                                            !item['isBookmarked'];
-                                      });
+                                    setState(() {
+                                      item['isBookmarked'] =
+                                          !item['isBookmarked'];
+                                    });
                                     // } else {
                                     //   _showNeedLoginAlert(context);
                                     // }

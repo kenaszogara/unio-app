@@ -2,13 +2,10 @@ import 'dart:convert';
 
 import 'package:Unio/src/models/university.dart';
 import 'package:Unio/src/utilities/global.dart';
-import 'package:Unio/src/widgets/CircularLoadingWidget.dart';
 
 import '../../config/ui_icons.dart';
 import '../models/category.dart';
-import '../models/utilities.dart';
 import '../widgets/CategoriesIconsContainerWidget.dart';
-import '../widgets/CategorizedUtilitiesWidget.dart';
 import '../widgets/HomeSliderWidget.dart';
 import 'package:flutter/material.dart';
 import '../widgets/PopularLocationCarouselWidget.dart';
@@ -22,10 +19,7 @@ class HomeWidget extends StatefulWidget {
 
 class _HomeWidgetState extends State<HomeWidget>
     with SingleTickerProviderStateMixin {
-  List<Utilitie> _utilitiesOfCategoryList;
-  List<Utilitie> _utilitiesfBrandList;
   CategoriesList _categoriesList = new CategoriesList();
-  // UniversityList _universityList = new UniversityList();
 
   List<University> _universityList;
 
@@ -49,37 +43,6 @@ class _HomeWidgetState extends State<HomeWidget>
 
     animationController.forward();
 
-    _utilitiesOfCategoryList = _categoriesList.list.firstWhere((category) {
-      return category.selected;
-    }).utilities;
-
-    // _utilitiesList.popularList.add(
-    //   new Utilitie(
-    //       'MIT', 'img/mit.jpg', 'Arts & Humanities', '-',25, 130, 4.3, 12.1));
-    //
-    // _utilitiesList.popularList.add(
-    //   new Utilitie('Harvard University', 'img/harvard.jpg',
-    //       'Business & Finance', '-',80, 2554, 3.1, 10.5),
-    // );
-    //
-    // _utilitiesList.popularList.add(
-    //     new Utilitie('Stanford University', 'img/stanford.jpg',
-    //         'Business & Finance', '-',60, 63, 5.0, 20.2),
-    // );
-    //
-    // _utilitiesList.popularList.add(
-    //   new Utilitie('Cambridge University', 'img/cambridge.jpg',
-    //       'Arts & Humanities', '-',80, 2554, 3.1, 10.5),
-    // );
-    //
-    // _utilitiesList.popularList.add(
-    //   new Utilitie('Oxford University', 'img/oxford.jpg', 'Arts & Humanities',
-    //       '-',10, 415, 4.9, 15.3),
-    // );
-
-    //_utilitiesfBrandList = _brandsList.list.firstWhere((brand) {
-    //return brand.selected;
-    //}).utilities;
     super.initState();
   }
 
@@ -134,7 +97,7 @@ class _HomeWidgetState extends State<HomeWidget>
         Container(
             padding: const EdgeInsets.only(right: 2, left: 2),
             child: CategoriesIconsContainerWidget(
-              categoriesList: _categoriesList,
+              // categoriesList: _categoriesList,
             )),
         Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -158,28 +121,6 @@ class _HomeWidgetState extends State<HomeWidget>
             ? PopularLocationCarouselWidget(
                 heroTag: 'home_flash_sales', universityList: _universityList)
             : CircularProgressIndicator(),
-        /*Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Column(
-              children: <Widget>[
-                ListTile(
-                  dense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 0),
-                  leading: Icon(
-                    UiIcons.box,
-                    color: Theme.of(context).hintColor,
-                  ),
-                  title: Text(
-                    'Recent',
-                    style: Theme.of(context).textTheme.display1,
-                  ),
-                ),
-              ],
-            )),*/
-        /*CategorizedUtilitiesWidget(
-          animationOpacity: animationOpacity,
-          utilitiesList: _utilitiesList.recentList,
-        )*/
       ],
     ));
   }

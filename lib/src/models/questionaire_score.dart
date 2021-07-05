@@ -100,7 +100,7 @@ class QuestionaireScore {
         scoreTemp.add(score);
         print(i);
       } else {
-        if (scoreTemp.length < 2) {
+        if (scoreTemp.length < 3) {
           if (scoreTemp[0] != score) {
             hcTemp.clear();
             scoreTemp.clear();

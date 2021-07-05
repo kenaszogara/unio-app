@@ -64,14 +64,14 @@ class _PopularLocationCarouselItemWidgetState
     return InkWell(
       onTap: () {
         print(widget.university.universityId is int);
-        if (Global.instance.apiToken != null) {
+        // if (Global.instance.apiToken != null) {
           Navigator.of(context).pushNamed('/Detail',
               arguments: RouteArgument(
-                  param1: widget.university.universityId,
-                  param2: 'universities'));
-        } else {
-          _showNeedLoginAlert(context);
-        }
+                  param1: [widget.university.universityId, 'universities'],
+                  param2: () {}));
+      //   } else {
+      //     _showNeedLoginAlert(context);
+      //   }
       },
       child: Container(
         margin: EdgeInsets.only(left: this.widget.marginLeft, right: 20),

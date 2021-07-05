@@ -284,7 +284,7 @@ class _AdviceWidgetState extends State<AdviceWidget> {
               print('majors: $i id: $id, check: $check');
 
               setState(() {
-                if (jsonMajors[i]['is_checked'] == "0" &&
+                if (
                     jsonMajors[i]['level'] != null) {
                   _adviceList.list.add(new Advice(
                     universityLogo: jsonMajors[i]['university_logo'],
@@ -294,20 +294,21 @@ class _AdviceWidgetState extends State<AdviceWidget> {
                     majorName: jsonMajors[i]['major_name'],
                     level: jsonMajors[i]['level'],
                     fos: jsonMajors[i]['fos'],
-                    isChecked: false,
+                    isChecked: jsonMajors[i]['is_checked'] == "0" ? false : true,
                   ));
-                } else {
-                  _adviceList.list.add(new Advice(
-                    universityLogo: jsonMajors[i]['university_logo'],
-                    universityId: jsonMajors[i]['university_id'],
-                    universityName: jsonMajors[i]['university_name'],
-                    majorId: jsonMajors[i]['major_id'],
-                    majorName: jsonMajors[i]['major_name'],
-                    level: jsonMajors[i]['level'],
-                    fos: jsonMajors[i]['fos'],
-                    isChecked: true,
-                  ));
-                }
+                } 
+                // else {
+                //   _adviceList.list.add(new Advice(
+                //     universityLogo: jsonMajors[i]['university_logo'],
+                //     universityId: jsonMajors[i]['university_id'],
+                //     universityName: jsonMajors[i]['university_name'],
+                //     majorId: jsonMajors[i]['major_id'],
+                //     majorName: jsonMajors[i]['major_name'],
+                //     level: jsonMajors[i]['level'],
+                //     fos: jsonMajors[i]['fos'],
+                //     isChecked: true,
+                //   ));
+                // }
               });
             }
           } else {
@@ -390,16 +391,18 @@ class _AdviceWidgetState extends State<AdviceWidget> {
           setState(() {
             // IF ITEM EXISTS DONT ADD TO BOOKMARK LIST
             // TODO: check res key value
-            _bookmarkedList.list.add(new Advice(
-              universityLogo: jsonMajors[i]['picture'],
-              universityId: jsonMajors[i]['detail_id'],
-              universityName: jsonMajors[i]['detail_name'],
-              majorId: jsonMajors[i]['entity_id'],
-              majorName: jsonMajors[i]['name'],
-              level: jsonMajors[i]['level'],
-              fos: jsonMajors[i]['cip'],
-              isChecked: true,
-            ));
+            if (jsonMajors[i]['level'] != null) {
+              _bookmarkedList.list.add(new Advice(
+                universityLogo: jsonMajors[i]['picture'],
+                universityId: jsonMajors[i]['detail_id'],
+                universityName: jsonMajors[i]['detail_name'],
+                majorId: jsonMajors[i]['entity_id'],
+                majorName: jsonMajors[i]['name'],
+                level: jsonMajors[i]['level'],
+                fos: jsonMajors[i]['cip'],
+                isChecked: true,
+              ));
+            }
           });
         }
       } else {

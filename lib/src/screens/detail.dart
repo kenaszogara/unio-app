@@ -297,7 +297,13 @@ class _DetailWidgetState extends State<DetailWidget>
                                             setState(() {
                                               isBookmarked = !isBookmarked;
                                             });
-                                            
+
+                                            showOkAlertDialog(
+                                                context: context,
+                                                title: isBookmarked
+                                                    ? 'Successfully Bookmarked'
+                                                    : 'Successfully Unbookmarked');
+
                                             // update bookmark in directory
                                             onBookmark();
                                           } else {
@@ -335,10 +341,11 @@ class _DetailWidgetState extends State<DetailWidget>
                                             if (detailType == 'majors') {
                                               Navigator.of(context).pushNamed(
                                                   '/Detail',
-                                                  arguments: RouteArgument(
-                                                      param1: data['university']
-                                                          ['id'],
-                                                      param2: 'universities'));
+                                                  arguments:
+                                                      RouteArgument(param1: [
+                                                    data['university']['id'],
+                                                    'universities'
+                                                  ], param2: () {}));
                                             } else {
                                               _launchURL(data['website']);
                                             }
@@ -516,12 +523,11 @@ class _DetailWidgetState extends State<DetailWidget>
                                               onPressed: () {
                                                 Navigator.of(context).pushNamed(
                                                     '/Detail',
-                                                    arguments: RouteArgument(
-                                                        param1:
-                                                            data['university']
-                                                                ['id'],
-                                                        param2:
-                                                            'universities'));
+                                                    arguments:
+                                                        RouteArgument(param1: [
+                                                      data['university']['id'],
+                                                      'universities'
+                                                    ], param2: () {}));
                                               },
                                               child: Text('Visit'),
                                             )

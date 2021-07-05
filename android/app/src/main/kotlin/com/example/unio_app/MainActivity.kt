@@ -1,4 +1,4 @@
-package com.example.business_directory_flutter_app
+package com.example.unio_app
 
 import io.flutter.embedding.android.FlutterActivity
 

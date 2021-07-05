@@ -45,7 +45,7 @@ class CategoriesList {
           'Scholarship', FontAwesomeIcons.graduationCap, false, Colors.pinkAccent, []),
       new Category(
           'Article', FontAwesomeIcons.newspaper, false, Colors.deepPurpleAccent, []),
-      new Category('Ranking', FontAwesomeIcons.trophy, false, Colors.brown, []),
+      // new Category('Ranking', FontAwesomeIcons.trophy, false, Colors.brown, []),
       new Category('Advice', FontAwesomeIcons.solidCompass, true, Colors.redAccent, []),
       new Category('Questionnaire', FontAwesomeIcons.userEdit, true, Colors.redAccent, []),
       // new Category('Bookmark', FontAwesomeIcons.solidHeart, true, Colors.redAccent, []),

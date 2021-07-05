@@ -84,7 +84,7 @@ class _ExtraQuestionScreenState extends State<ExtraQuestionScreen> {
                 ElevatedButton(
                     onPressed: () {
                       if (order > options.length)
-                      // print(order);
+                        // print(order);
                         answerExtra();
                     },
                     child: Text('Done'))
@@ -181,10 +181,18 @@ class _ExtraQuestionScreenState extends State<ExtraQuestionScreen> {
     var tempIndex;
     var hc = '';
 
-    var answer = {
-      options[0]['order']: options[0]['type'],
-      options[1]['order']: options[1]['type'],
-    };
+    // var answer = {
+    //   options[0]['order']: options[0]['type'],
+    //   options[1]['order']: options[1]['type'],
+    // };
+
+    // var index = options.keys.toList();
+
+    var answer = {};
+
+    for (int i = 0; i < options.length; i++) {
+      answer[options[i]['order']] = options[i]['type'];
+    }
 
     print(answer);
 
@@ -210,30 +218,30 @@ class _ExtraQuestionScreenState extends State<ExtraQuestionScreen> {
     print(hc);
 
     try {
-        final url =
-            Uri.parse('${SERVER_DOMAIN}user/set-hc/${Global.instance.authId}');
-        final token = await storage.read(key: 'apiToken');
-        final response = await http.post(url, headers: {
-          'Authorization': 'Bearer $token',
-        }, body: {
-          'hc': hc,
-        });
+      final url =
+          Uri.parse('${SERVER_DOMAIN}user/set-hc/${Global.instance.authId}');
+      final token = await storage.read(key: 'apiToken');
+      final response = await http.post(url, headers: {
+        'Authorization': 'Bearer $token',
+      }, body: {
+        'hc': hc,
+      });
 
-        print(response);
+      print(response);
 
-        // save to local storage
-        Global.instance.authHc = hc;
-        await storage.write(key: 'authHc', value: hc);
+      // save to local storage
+      Global.instance.authHc = hc;
+      await storage.write(key: 'authHc', value: hc);
 
-        print('${hc} added to user profile');
+      print('${hc} added to user profile');
 
-        Navigator.of(context).pushReplacementNamed('/Advice',
-            arguments: new RouteArgument(argumentsList: [
-              Category('Advice', UiIcons.compass, true, Colors.redAccent, []),
-              ''
-            ]));
-      } on SocketException {
-        throw 'Tidak ada koneksi internet. Silahkan coba lagi.';
-      }
+      Navigator.of(context).pushReplacementNamed('/Advice',
+          arguments: new RouteArgument(argumentsList: [
+            Category('Advice', UiIcons.compass, true, Colors.redAccent, []),
+            ''
+          ]));
+    } on SocketException {
+      throw 'Tidak ada koneksi internet. Silahkan coba lagi.';
+    }
   }
 }

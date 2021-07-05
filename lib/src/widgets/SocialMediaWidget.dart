@@ -10,6 +10,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SocialMediaWidget extends StatelessWidget {
   const SocialMediaWidget({
@@ -49,14 +50,16 @@ class SocialMediaWidget extends StatelessWidget {
         //   ),
         // ),
         // SizedBox(width: 10),
-        // SizedBox(
-        //   width: 45,
-        //   height: 45,
-        //   child: InkWell(
-        //     onTap: () {},
-        //     child: Image.asset('img/google-plus.png'),
-        //   ),
-        // ),
+        SizedBox(
+          width: 45,
+          height: 45,
+          child: InkWell(
+            onTap: () {
+              _handleSignIn(context);
+            },
+            child: Image.asset('img/google-plus.png'),
+          ),
+        ),
         // SizedBox(width: 10),
         // SizedBox(
         //   width: 45,
@@ -93,6 +96,34 @@ class SocialMediaWidget extends StatelessWidget {
       case FacebookLoginStatus.error:
         showOkAlertDialog(context: context, message: result.errorMessage);
         break;
+    }
+  }
+
+  Future<void> _handleSignIn(BuildContext context) async {
+    GoogleSignInAccount _currentUser;
+
+    GoogleSignIn _googleSignIn = GoogleSignIn(
+      scopes: [
+        'email',
+      ],
+    );
+
+    try {
+      await _googleSignIn.signIn();
+      _currentUser = _googleSignIn.currentUser;
+
+      if (_currentUser == null) {
+        showOkAlertDialog(
+          context: context,
+          title: 'User not found',
+        );
+      }
+
+      print(_currentUser);
+
+      _login(context, 'google', _currentUser.id, _currentUser.email, _currentUser.displayName);
+    } catch (error) {
+      print(error);
     }
   }
 
@@ -214,28 +245,28 @@ class SocialMediaWidget extends StatelessWidget {
   }
 }
 
-class WebViewExample extends StatefulWidget {
-  @override
-  WebViewExampleState createState() => WebViewExampleState();
-}
+// class WebViewExample extends StatefulWidget {
+//   @override
+//   WebViewExampleState createState() => WebViewExampleState();
+// }
 
-class WebViewExampleState extends State<WebViewExample> {
-  @override
-  void initState() {
-    super.initState();
-    // Enable hybrid composition.
-    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
-  }
+// class WebViewExampleState extends State<WebViewExample> {
+//   @override
+//   void initState() {
+//     super.initState();
+//     // Enable hybrid composition.
+//     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Login Facebook'),
-      ),
-      body: WebView(
-        initialUrl: 'https://primavisiglobalindo.net/unio/public/auth/facebook',
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Login Facebook'),
+//       ),
+//       body: WebView(
+//         initialUrl: 'https://primavisiglobalindo.net/unio/public/auth/facebook',
+//       ),
+//     );
+//   }
+// }

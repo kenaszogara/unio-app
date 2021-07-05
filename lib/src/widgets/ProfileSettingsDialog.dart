@@ -107,7 +107,7 @@ class _ProfileSettingsDialogState extends State<ProfileSettingsDialog> {
                           builder: (FormFieldState<String> state) {
                             return DropdownButtonFormField<String>(
                               decoration: getInputDecoration(
-                                  hintText: 'Female', labelText: 'Gender'),
+                                  hintText: 'Female', labelText: 'Sex'),
                               hint: Text("Sex"),
                               value: widget.user.gender,
                               onChanged: (input) {
