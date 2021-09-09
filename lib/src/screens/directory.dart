@@ -1,9 +1,12 @@
+import 'package:Unio/src/providers/countries.dart';
+import 'package:Unio/src/providers/level.dart';
 import 'package:Unio/src/screens/compare/compare.dart';
+import 'package:Unio/src/service/api_service.dart';
 import 'package:Unio/src/utilities/global.dart';
 import 'package:Unio/src/widgets/CustomDropdownSearchWidget.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:dio/dio.dart';
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../config/ui_icons.dart';
@@ -12,10 +15,9 @@ import '../models/route_argument.dart';
 import '../widgets/DrawerWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:math' as math;
 import 'dart:convert';
 import 'dart:io';
-import '../models/utilities.dart';
+import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class DirectoryWidget extends StatefulWidget {
@@ -91,9 +93,6 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
   var countryRes = List();
   var stateRes = List();
 
-  String _valCountry;
-  String _valCountryId;
-
   String _valState;
 
   String levelDegree;
@@ -112,9 +111,16 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
 
   @override
   void initState() {
+    super.initState();
+    context.read<LevelProvider>().initLevel();
+    context.read<CountryProvider>().initCountries();
+
+    widget._keyword != null
+        ? myController.text = widget._keyword
+        : myController.text = '';
+
     setParam();
     getData();
-    getCountry();
 
     r_xOffset = 500;
     r_yOffset = 0;
@@ -125,8 +131,6 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
     isRightDrawerOpen = false;
     isBottomDrawerOpen = false;
 
-    super.initState();
-
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
@@ -135,85 +139,15 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
             '======' +
             page.toString());
         if (hasMore && !loadingData) {
-          page = page + 1;
           getData();
         }
       }
     });
 
     print(widget._stateid);
-    // print(widget.filterState);
-    // print(widget.filterStateValue);
 
     univeristyNameSearchController
         .addListener(handleUniversityNameSearchController);
-  }
-
-  Future getLevel() async {
-    final response = await http.get(
-        Uri.parse(
-            'https://primavisiglobalindo.net/unio/public/api/level_major'),
-        // Send authorization headers to the backend.
-        headers: {
-          // HttpHeaders.authorizationHeader: 'Bearer $token',
-          HttpHeaders.contentTypeHeader: 'aplication/json',
-        });
-    print(response.body);
-
-    levelRes = jsonDecode(response.body)['data'];
-
-    for (var i = 0; i < levelRes.length; i++) {
-      setState(() {
-        level.add(levelRes[i]['name'].toString());
-      });
-    }
-
-    if (Global.instance.authLevelId != null) {
-      var selected = await levelRes.firstWhere(
-          (element) => element['id'] == Global.instance.authLevelId);
-      levelDegree = selected['name'];
-
-      levelDefault = true;
-      levelDefaultValue = levelDegree;
-      showLevelDefault = true;
-    }
-
-    print("level=" + levelDegree.toString());
-  }
-
-  void setInitialValCountry(String countryid) async {
-    final response = await http.get(
-      Uri.parse('https://primavisiglobalindo.net/unio/public/api/countries'),
-    );
-    // print(response.body);
-    var data = await jsonDecode(response.body)['data'];
-
-    countryRes = data;
-
-    // print(countryRes.toString());
-    // state = [{"id":1,"name":"Jawa Barat"},{"id":2,"name":"Jawa Tengah"},{"id":3,"name":"Jawa Timur"},{"id":4,"name":"DKI Jakarta"}];
-    countries.clear();
-    for (var i = 0; i < countryRes.length; i++) {
-      setState(() {
-        countries.add(DropdownMenuItem(
-          child: Text(countryRes[i]['name']),
-          value: countryRes[i]['name'],
-        ));
-
-        countryList.add(countryRes[i]['name'].toString());
-      });
-    }
-
-    var selected = await data
-        .firstWhere((element) => element['id'] == int.parse(countryid));
-    _valCountry = selected['name'];
-    _valCountryId = selected['id'].toString();
-
-    countryDefaultValue = _valCountry;
-    countryDefault = true;
-    showCountryDefault = true;
-
-    print(_valCountry);
   }
 
   void setInitialValState(String countryid, String stateid) async {
@@ -289,35 +223,14 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
         entity = 'universities';
         break;
     }
-
-    if (widget._countryid != null) {
-      setInitialValCountry(widget._countryid);
-    } else {
-      print('countryid=' + Global.instance.authCountryId.toString());
-      if (Global.instance.authCountryId != null) {
-        widget._countryid = Global.instance.authCountryId.toString();
-        setInitialValCountry(widget._countryid);
-      }
-    }
-
-    if (widget._countryid != null && widget._stateid != null) {
-      // print('pass');
-      setInitialValState(widget._countryid, widget._stateid);
-      // getstate(widget._stateid);
-    }
   }
 
   void getData() async {
-    setState(() {});
     String url;
     var userId = Global.instance.authId != null ? Global.instance.authId : '';
 
-    if (widget._countryid == 'null' || widget._countryid == null) {
-      // ignore: unnecessary_statements
-      widget._countryid == '';
-    } else {
-      widget.filterCountry = widget._countryid;
-    }
+    String level = context.read<LevelProvider>().selectedLevel ?? null;
+    int countryId = context.read<CountryProvider>().selectedCountryId() ?? null;
 
     if (widget._stateid == 'null' || widget._stateid == null) {
       // ignore: unnecessary_statements
@@ -326,155 +239,77 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
       widget.filterState = widget._stateid;
     }
 
-    print(widget.filterCountry);
-    print(widget.filterState);
-
     print(subUrl);
 
-    if (entity == 'majors' && levelRes == null) {
-      await getLevel();
-    }
+    url = SERVER_DOMAIN +
+        'search?keyword=' +
+        subUrl +
+        '&user_id=' +
+        userId +
+        '&name=' +
+        widget._keyword +
+        '&country=' +
+        (countryId == null ? "" : countryId.toString()) +
+        '&level=' +
+        (level == null ? "" : level) +
+        '&university=' +
+        (universityName == null ? "" : universityName) +
+        '&state=' +
+        widget.filterState +
+        '&page=$page';
 
-    if (widget.panjangarg > 7) {
-      url = SERVER_DOMAIN +
-                  "search?keyword=universities" +
-                  '&country=' +
-                  widget._countryid ==
-              'null'
-          ? ''
-          : widget._countryid + '&state=' + widget._stateid + '&page=$page';
-      if (widget.panjangarg == 5) {
-        url =
-            SERVER_DOMAIN + "search?keyword=university-majors/" + widget._uniid;
-      }
-    } else {
-      url = SERVER_DOMAIN +
-          'search?keyword=' +
-          subUrl +
-          '&user_id=' +
-          userId +
-          '&name=' +
-          widget._keyword +
-          '&country=' +
-          widget.filterCountry +
-          '&level=' +
-          (levelDegree == null ? "" : levelDegree) +
-          '&university=' +
-          (universityName == null ? "" : universityName) +
-          '&state=' +
-          widget.filterState +
-          '&page=$page';
+    print('========= noted: get requestMap ' + "===== url " + url);
 
-      print('========= noted: get requestMap ' + "===== url " + url);
-    }
     print(url);
     print('lala');
-    try {
-      loadingData = true;
-      final client = new http.Client();
-      final response = await client
-          .get(
-        Uri.parse(url),
-      )
-          .timeout(Duration(seconds: 60), onTimeout: () {
-        throw 'Koneksi terputus. Silahkan coba lagi.';
-      });
 
-      if (response.statusCode == 200) {
-        print('========= noted: get response body ' + response.body.toString());
-        if (response.body.isNotEmpty) {
-          dynamic jsonMap;
-          // if (widget.panjangarg > 2) {
-          //   jsonMap = json.decode(response.body)['data']['data'];
-          // } else {
-          jsonMap = json.decode(response.body)['data'];
-          // }
+    loadingData = true;
 
-          if (jsonMap != null) {
-            // print(jsonMap[0]['is_checked']);
-            for (var i = 0; i < jsonMap.length; i++) {
-              dynamic jsonUniv;
-              if (widget._category.name == 'Field of study' ||
-                  widget._category.name == 'Scholarship') {
-                //university, name
-                jsonUniv = jsonMap[i]['university'];
-              }
+    Response response = await apiClient().get(url);
 
-              // add isBookmarked bool
-              // print(jsonMap[i]);
+    if (response.statusCode == 200) {
+      loadingData = false;
+      print('========= noted: get response body ' + response.data.toString());
+      if (response.data.isNotEmpty) {
+        dynamic jsonMap;
 
-              jsonMap[i]['is_checked'] == null
-                  ? jsonMap[i]['isBookmarked'] = false
-                  : jsonMap[i]['isBookmarked'] = true;
+        jsonMap = response.data['data'];
 
-              // add isCompared bool
-              jsonMap[i]['isCompared'] = false;
-
-              directoryList.add(jsonMap[i]);
+        if (jsonMap != null) {
+          // print(jsonMap[0]['is_checked']);
+          for (var i = 0; i < jsonMap.length; i++) {
+            dynamic jsonUniv;
+            if (widget._category.name == 'Field of study' ||
+                widget._category.name == 'Scholarship') {
+              //university, name
+              jsonUniv = jsonMap[i]['university'];
             }
-          }
 
-          int currentPage;
-          int lastPage;
+            jsonMap[i]['is_checked'] == null
+                ? jsonMap[i]['isBookmarked'] = false
+                : jsonMap[i]['isBookmarked'] = true;
 
-          if (widget.panjangarg > 6) {
-            currentPage = json.decode(response.body)['meta']['current_page'];
-            lastPage = json.decode(response.body)['meta']['last_page'];
-          } else {
-            currentPage = json.decode(response.body)['meta']['current_page'];
-            lastPage = json.decode(response.body)['meta']['last_page'];
-          }
+            // add isCompared bool
+            jsonMap[i]['isCompared'] = false;
 
-          if (currentPage < lastPage) {
-            page++;
-            hasMore = true;
-          } else {
-            hasMore = false;
-          }
-          setState(() {});
-
-          String error = json.decode(response.body)['error'];
-          if (error != null) {
-            throw error;
+            directoryList.add(jsonMap[i]);
           }
         }
-      } else {
-        String error = json.decode(response.body)['error'];
-        throw (error == '') ? 'Gagal memproses data' : error;
-      }
-      loadingData = false;
-    } on SocketException {
-      throw 'Tidak ada koneksi internet. Silahkan coba lagi.';
-    }
-  }
 
-  void getCountry() async {
-    final response = await http.get(
-      Uri.parse('https://primavisiglobalindo.net/unio/public/api/countries'),
-      // Send authorization headers to the backend.
-      headers: {
-        HttpHeaders.authorizationHeader:
-            "VsNYL8JE4Cstf8gb9LYCobuxYWzIo71bvUkIVYXXVUO4RtvuRxGYxa3TFzsaOeHxxf4PRY7MIhBPJBly4H9bckY5Qr44msAxc0l4"
-      },
-    );
-    // print(response.body);
-    setState(() {
-      // _valCountry = null;
-      countries.clear();
-      countryList.clear();
-      countryRes = jsonDecode(response.body)['data'];
-    });
-    // print(countryRes.toString());
-    // state = [{"id":1,"name":"Jawa Barat"},{"id":2,"name":"Jawa Tengah"},{"id":3,"name":"Jawa Timur"},{"id":4,"name":"DKI Jakarta"}];
-    countries.clear();
-    for (var i = 0; i < countryRes.length; i++) {
-      setState(() {
-        countries.add(DropdownMenuItem(
-          child: Text(countryRes[i]['name']),
-          value: countryRes[i]['name'],
-        ));
-        countryList.add(countryRes[i]['name'].toString());
-      });
+        int currentPage;
+        int lastPage;
+
+        currentPage = response.data['meta']['current_page'];
+        lastPage = response.data['meta']['last_page'];
+
+        if (currentPage < lastPage) {
+          page++;
+          hasMore = true;
+        } else {
+          hasMore = false;
+        }
+        setState(() {});
+      }
     }
   }
 
@@ -583,73 +418,6 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
           _item['isBookmarked'] = !_item['isBookmarked'];
         });
       });
-  }
-
-  Future<void> updateProfile({String field, bool isEmpty = false}) async {
-    Map<String, String> headers = <String, String>{
-      HttpHeaders.contentTypeHeader: 'application/json'
-    };
-    var url = SERVER_DOMAIN + 'users/' + Global.instance.authId;
-    var token = Global.instance.apiToken;
-    headers.addAll(
-        <String, String>{HttpHeaders.authorizationHeader: 'Bearer $token'});
-    print(url);
-    print(headers);
-
-    final client = new http.Client();
-
-    if (field == 'country_id') {
-      var _selectedCountryId = widget._countryid;
-      final response = await client.put(Uri.parse(url),
-          headers: headers,
-          body:
-              jsonEncode({'country_id': !isEmpty ? _selectedCountryId : null}));
-      print(response.body);
-
-      // var msg = jsonDecode(response.body)['message'];
-
-      if (response.statusCode == 200) {
-        Global.instance.authCountryId =
-            !isEmpty ? int.parse(_selectedCountryId) : null;
-
-        // print(Global.instance.authCountryId);
-
-        storage.write(
-            key: 'authCountryId', value: !isEmpty ? _selectedCountryId : null);
-
-        showOkAlertDialog(
-            context: context,
-            title: "User's search preference updated succesfuully");
-      } else {
-        showOkAlertDialog(context: context, title: 'Update not successful');
-      }
-    } else if (field == 'level_id') {
-      var selected =
-          levelRes.firstWhere((element) => element['name'] == levelDegree);
-      int _selectedLevelId = selected['id'];
-      final response = await client.put(Uri.parse(url),
-          headers: headers,
-          body: jsonEncode({'level_id': !isEmpty ? _selectedLevelId : null}));
-      print(response.body);
-
-      var msg = jsonDecode(response.body)['message'];
-
-      if (response.statusCode == 200) {
-        Global.instance.authLevelId = !isEmpty ? _selectedLevelId : null;
-
-        // print(Global.instance.authCountryId);
-
-        storage.write(
-            key: 'authLevelId',
-            value: !isEmpty ? _selectedLevelId.toString() : null);
-
-        showOkAlertDialog(
-            context: context,
-            title: "User's search preference updated succesfuully");
-      } else {
-        showOkAlertDialog(context: context, title: 'Update not successful');
-      }
-    } else {}
   }
 
   @override
@@ -816,17 +584,13 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                                   : SizedBox(),
                               IconButton(
                                 onPressed: () {
-                                  /*Navigator.of(context).pushNamed('/Directory',
-                                      arguments: new RouteArgument(argumentsList: [
-                                        widget._category,
-                                        myController.text
-                                      ]));*/
-                                  widget._keyword = myController.text;
-                                  page = 1;
-                                  directoryList.clear();
-                                  // widget._category.utilities.clear();
-                                  setState(() {});
-                                  getData();
+                                  if (myController.text.isNotEmpty) {
+                                    widget._keyword = myController.text;
+                                    page = 1;
+                                    directoryList.clear();
+                                    setState(() {});
+                                    getData();
+                                  }
                                 },
                                 icon: Icon(UiIcons.loupe,
                                     size: 20,
@@ -1244,83 +1008,7 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                         ),
                       );
                     },
-                  )
-                      // new StaggeredGridView.countBuilder(
-                      //   primary: false,
-                      //   shrinkWrap: true,
-                      //   crossAxisCount: 4,
-                      //   itemCount: widget._category.utilities.length,
-                      //   itemBuilder: (BuildContext context, int index) {
-                      //     return InkWell(
-                      //       highlightColor: Colors.transparent,
-                      //       splashColor:
-                      //           Theme.of(context).accentColor.withOpacity(0.08),
-                      //       onTap: () {
-                      //         print(entity);
-                      //         print(widget._category.utilities[index].available);
-                      //         Navigator.of(context).pushNamed('/Detail',
-                      //             arguments: RouteArgument(
-                      //                 param1: widget
-                      //                     ._category.utilities[index].available,
-                      //                 param2: entity));
-                      //       },
-                      //       child: Container(
-                      //         decoration: BoxDecoration(
-                      //           color: Theme.of(context).primaryColor,
-                      //           borderRadius: BorderRadius.circular(6),
-                      //           boxShadow: [
-                      //             BoxShadow(
-                      //                 color: Theme.of(context)
-                      //                     .hintColor
-                      //                     .withOpacity(0.10),
-                      //                 offset: Offset(0, 4),
-                      //                 blurRadius: 10)
-                      //           ],
-                      //         ),
-                      //         child: Column(
-                      //           crossAxisAlignment: CrossAxisAlignment.start,
-                      //           children: <Widget>[
-                      //             (widget._category.utilities[index].type == 'null')
-                      //                 ? Image.asset('img/icon_campus.jpg')
-                      //                 : Image.network(
-                      //                     widget._category.utilities[index].type),
-                      //             SizedBox(height: 12),
-                      //             Padding(
-                      //               padding: const EdgeInsets.symmetric(
-                      //                   horizontal: 15, vertical: 5),
-                      //               child: Column(
-                      //                 mainAxisAlignment: MainAxisAlignment.start,
-                      //                 crossAxisAlignment: CrossAxisAlignment.start,
-                      //                 children: [
-                      //                   Text(
-                      //                     widget._category.utilities[index].name,
-                      //                     style: Theme.of(context).textTheme.body2,
-                      //                   ),
-                      //                   (widget._category.utilities[index].price ==
-                      //                           1)
-                      //                       ? Text(
-                      //                           widget._category.utilities[index]
-                      //                               .description,
-                      //                           style: Theme.of(context)
-                      //                               .textTheme
-                      //                               .body1,
-                      //                         )
-                      //                       : Container(),
-                      //                 ],
-                      //               ),
-                      //             ),
-                      //             SizedBox(height: 15),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //     );
-                      //   },
-                      //   staggeredTileBuilder: (int index) =>
-                      //       new StaggeredTile.fit(2),
-                      //   mainAxisSpacing: 15.0,
-                      //   crossAxisSpacing: 15.0,
-                      // ),
-                      ),
+                  )),
                   (hasMore)
                       ? Center(
                           // optional
@@ -1381,6 +1069,9 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
   }
 
   Widget _rightDrawer() {
+    final _levelProvider = context.watch<LevelProvider>();
+    final _countryProvider = context.watch<CountryProvider>();
+
     return AnimatedContainer(
       transform: Matrix4.translationValues(r_xOffset, r_yOffset, 0),
       duration: Duration(milliseconds: 250),
@@ -1437,48 +1128,41 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                       SizedBox(
                         height: 10,
                       ),
-
                       CustomDropdownWidget(
                         context: context,
-                        items: countryList,
+                        items: _countryProvider.countries,
                         label: "Country",
                         hint: "Country",
-                        selectedItem: _valCountry,
+                        selectedItem: _countryProvider.selectedCountry,
                         onChanged: (value) {
                           // print(value);
                           setState(() {
-                            _valCountry = value;
+                            _countryProvider.selectedCountry = value;
 
                             if (value != null) {
                               print("nilai=" + value.toString());
-                              var selected = countryRes.firstWhere(
-                                  (element) => element['name'] == value);
-                              _valCountryId = selected['id'].toString();
-                              widget._countryid = selected['id'].toString();
 
-                              // _valState = '';
+                              // widget._countryid =
+                              //     _countryProvider.selectedCountryId.toString();
 
-                              // getstate(selected['id'].toString());
-
-                              showCountryDefault = true;
+                              _countryProvider.showCheckBox = true;
                             } else {
-                              _valCountryId = '';
                               widget._countryid = '';
 
-                              showCountryDefault = false;
+                              _countryProvider.showCheckBox = false;
                             }
 
-                            if (countryDefaultValue == _valCountry) {
-                              countryDefault = true;
+                            if (_countryProvider.defaultCountry == value) {
+                              _countryProvider.checkBoxValue = true;
                             } else {
-                              countryDefault = false;
+                              _countryProvider.checkBoxValue = false;
                             }
                           });
                         },
                       ),
                       Visibility(
                         visible: (Global.instance.apiToken != null &&
-                                showCountryDefault)
+                                _countryProvider.showCheckBox)
                             ? true
                             : false,
                         child: Padding(
@@ -1488,18 +1172,15 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                             children: [
                               Text('Make Country as default'),
                               Checkbox(
-                                  value: countryDefault,
+                                  value: _countryProvider.checkBoxValue,
                                   onChanged: (bool value) {
                                     setState(() {
-                                      countryDefault = value;
+                                      _countryProvider.checkBoxValue = value;
 
-                                      if (countryDefault) {
-                                        countryDefaultValue = _valCountry;
-                                        updateProfile(field: 'country_id');
+                                      if (value) {
+                                        _countryProvider.addDefault(context);
                                       } else {
-                                        countryDefaultValue = '';
-                                        updateProfile(
-                                            field: 'country_id', isEmpty: true);
+                                        _countryProvider.removeDefault(context);
                                       }
                                     });
                                   })
@@ -1510,54 +1191,34 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                       SizedBox(
                         height: 10,
                       ),
-                      // CustomDropdownWidget(
-                      //   context: context,
-                      //   items: stateList,
-                      //   label: "State",
-                      //   hint: "State",
-                      //   // popupItemDisabled: (String s) => s.startsWith('I'),
-                      //   onChanged: (value) {
-                      //     // print(value);
-                      //     if (_valState != null) {
-                      //       var selected = stateRes
-                      //           .firstWhere((element) => element['name'] == value);
-
-                      //       // print(value);
-                      //       // print(selected['id'].toString());
-
-                      //       widget._stateid = selected['id'].toString();
-                      //     }
-                      //   },
-                      //   selectedItem: _valState,
-                      // ),
                       Visibility(
                           visible: (entity == 'majors') ? true : false,
                           child: CustomDropdownWidget(
                             context: context,
                             hint: 'Level',
-                            selectedItem: levelDegree,
-                            items: level,
+                            selectedItem: _levelProvider.selectedLevel,
+                            items: _levelProvider.levels,
                             onChanged: (value) {
-                              setState(() {
-                                levelDegree = value;
-                                if (value == null) {
-                                  showLevelDefault = false;
-                                } else {
-                                  showLevelDefault = true;
-                                }
+                              _levelProvider.selectedLevel = value;
 
-                                if (levelDefaultValue == levelDegree) {
-                                  levelDefault = true;
-                                } else {
-                                  levelDefault = false;
-                                }
-                              });
+                              if (value == null) {
+                                _levelProvider.showCheckBox = false;
+                              } else {
+                                _levelProvider.showCheckBox = true;
+                              }
+
+                              if (_levelProvider.defaultLevel ==
+                                  _levelProvider.selectedLevel) {
+                                _levelProvider.checkBoxValue = true;
+                              } else {
+                                _levelProvider.checkBoxValue = false;
+                              }
                             },
                           )),
                       Visibility(
                         visible: (Global.instance.apiToken != null &&
                                 entity == 'majors' &&
-                                showLevelDefault)
+                                _levelProvider.showCheckBox)
                             ? true
                             : false,
                         child: Padding(
@@ -1569,20 +1230,15 @@ class _DirectoryWidgetState extends State<DirectoryWidget> {
                             children: [
                               Text('Make Level as default'),
                               Checkbox(
-                                  value: levelDefault,
+                                  value: _levelProvider.checkBoxValue,
                                   onChanged: (bool value) {
-                                    setState(() {
-                                      levelDefault = value;
+                                    _levelProvider.checkBoxValue = value;
 
-                                      if (levelDefault) {
-                                        levelDefaultValue = levelDegree;
-                                        updateProfile(field: 'level_id');
-                                      } else {
-                                        levelDefaultValue = '';
-                                        updateProfile(
-                                            field: 'level_id', isEmpty: true);
-                                      }
-                                    });
+                                    if (value) {
+                                      _levelProvider.addDefault(context);
+                                    } else {
+                                      _levelProvider.removeDefault(context);
+                                    }
                                   })
                             ],
                           ),

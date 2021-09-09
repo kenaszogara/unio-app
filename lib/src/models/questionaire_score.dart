@@ -1,3 +1,5 @@
+import 'package:Unio/src/service/api_service.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 
 class QuestionaireScore {
@@ -74,7 +76,7 @@ class QuestionaireScore {
     });
   }
 
-  dynamic calculateFinalScore() {
+  dynamic calculateFinalScore() async {
     countScore();
 
     var sortedKeys = _hollandCode.keys.toList(growable: false)
@@ -85,76 +87,17 @@ class QuestionaireScore {
         key: (k) => k, value: (k) => _hollandCode[k]);
     print(sortedMap);
 
-    // ONLY WORKS IF DATA IS SORTED FROM HIGH TO LOW
-    // List code = sortedMap.keys.toList();
-    List hcTemp = [];
-    String scoreTemp = "";
-    // var hcMap = {};
+    Response response = await apiClient()
+        .post('calculate-score-quest', data: {'score': sortedMap});
 
-    int pointer = 0;
-    // int len = 0;
-
-    while (pointer < 3) {
-      var val = sortedMap[sortedKeys[pointer]];
-      var n1 = sortedMap[sortedKeys[pointer + 1]];
-      var n2 = sortedMap[sortedKeys[pointer + 2]];
-
-      if (val == n1 && val == n2) {
-        hcTemp.add(sortedKeys[pointer]);
-        hcTemp.add(sortedKeys[pointer + 1]);
-        hcTemp.add(sortedKeys[pointer + 2]);
-        scoreTemp = scoreTemp + '_';
-        pointer = pointer + 3;
-        continue;
-      }
-
-      if (val == n1) {
-        hcTemp.add(sortedKeys[pointer]);
-        hcTemp.add(sortedKeys[pointer + 1]);
-        scoreTemp = scoreTemp + '_';
-        pointer = pointer + 2;
-        continue;
-      }
-
-      scoreTemp = scoreTemp + sortedKeys[pointer];
-      pointer = pointer + 1;
-    }
-
-    print(hcTemp);
-    print(scoreTemp);
-
-    // for (var i = 0; i < 3; i++) {
-    //   var _v = sortedMap[sortedKeys[i]];
-
-    //   if (scoreTemp == null) {
-    //     scoreTemp = _v;
-    //   }
-
-    //   if (scoreTemp == _v) {
-    //     hcTemp.add(sortedKeys[i]);
-    //   }
-
-    //   if (scoreTemp != _v && hcTemp.length < 2) {
-    //     hcTemp.clear();
-    //     hcTemp.add(sortedKeys[i]);
-    //     scoreTemp = _v;
-    //   }
-    // }
-
-    if (hcTemp.length > 1) {
-      _score = {
-        'has_extra': true,
-        'score': scoreTemp,
-        // 'old_hc': [sortedKeys[0], sortedKeys[1], sortedKeys[2]],
-        'extra_hc': hcTemp,
-      };
+    if (response.statusCode == 200) {
+      return response.data['data'];
     } else {
-      _score = {
+      return {
         'has_extra': false,
-        'score': scoreTemp,
+        'score': sortedKeys[0] + sortedKeys[1] + sortedKeys[2],
       };
     }
-
-    return _score;
+    
   }
 }

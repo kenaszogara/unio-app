@@ -177,11 +177,56 @@ class QuestionController extends GetxController
   }
 
   void adviceStudent(context) async {
-    dynamic finalScore = _score.calculateFinalScore();
+    dynamic finalScore = await _score.calculateFinalScore();
+
+    // dynamic finalScore = {
+    //   "hasExtra": true,
+    //   "score": "__",
+    //   "extras": [
+    //     ["R", "I"],
+    //     ["A", "S", "E"]
+    //   ],
+    //   "extra_images": [
+    //     [
+    //       {
+    //         "name": "Interested in automotive",
+    //         "src":
+    //             "http:\/\/dev2.unio.id\/kuisoner\/images\/Repair a thing (R).png",
+    //         "type": "R"
+    //       },
+    //       {
+    //         "name": "Learn and acquire knowledge",
+    //         "src":
+    //             "http:\/\/dev2.unio.id\/kuisoner\/images\/Solving a law case(I).jpg",
+    //         "type": "I"
+    //       }
+    //     ],
+    //     [
+    //       {
+    //         "name": "Generate new ideas",
+    //         "src":
+    //             "http:\/\/dev2.unio.id\/kuisoner\/images\/Writing a poem(A).jpg",
+    //         "type": "A"
+    //       },
+    //       {
+    //         "name": "Connect with people",
+    //         "src": "http:\/\/dev2.unio.id\/kuisoner\/images\/Teaching(S).jpg",
+    //         "type": "S"
+    //       },
+    //       {
+    //         "name": "Manage people",
+    //         "src":
+    //             "http:\/\/dev2.unio.id\/kuisoner\/images\/Present a thing(E).jpg",
+    //         "type": "E"
+    //       }
+    //     ]
+    //   ]
+    // };
+
     String score = finalScore['score'];
     // update hc of student profile
 
-    if (finalScore['has_extra']) {
+    if (finalScore['hasExtra']) {
       _hasExtra = true;
       // _oldHc = finalScore['old_hc'];
       // _extraHc = finalScore['extra_hc'];
@@ -190,21 +235,26 @@ class QuestionController extends GetxController
 
       update();
 
-      if (finalScore['extra_hc'].length == 2) {
-        Navigator.of(context).pushReplacementNamed('/ExtraQuestionTwo',
-            arguments: new RouteArgument(argumentsList: [
-              finalScore['score'],
-              finalScore['extra_hc'],
-              _extraQuestions,
-            ]));
-      } else {
-        Navigator.of(context).pushReplacementNamed('/ExtraQuestion',
-            arguments: new RouteArgument(argumentsList: [
-              finalScore['score'],
-              finalScore['extra_hc'],
-              _extraQuestions,
-            ]));
-      }
+      // if (finalScore['extras'].length == 1) {
+        // if (finalScore['extras'][0].length == 2) {
+          Navigator.of(context).pushReplacementNamed('/ExtraQuestionTwo',
+              arguments: new RouteArgument(argumentsList: [
+                finalScore['score'],
+                finalScore['extra_images'],
+                _extraQuestions,
+                finalScore,
+              ]));
+      //   } else {
+      //     Navigator.of(context).pushReplacementNamed('/ExtraQuestion',
+      //         arguments: new RouteArgument(argumentsList: [
+      //           finalScore['old_hc'],
+      //           finalScore['extra_hc'],
+      //           _extraQuestions,
+      //         ]));
+      //   }
+      // } else {
+        // combination of both
+      // }
 
       resetScore();
     } else {

@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:Unio/src/providers/countries.dart';
+import 'package:Unio/src/providers/level.dart';
 import 'package:Unio/src/utilities/global.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
 import '../../config/ui_icons.dart';
 import '../models/user.dart';
@@ -34,22 +37,25 @@ class _AccountWidgetState extends State<AccountWidget> {
   void initState() {
     super.initState();
 
-    if (Global.instance.authCountryId == null) {
-      _selectedCountryId = -1;
-      _selectedCountryName = 'Any Country';
-    } else {
-      _selectedCountryId = Global.instance.authCountryId;
-    }
+    context.read<LevelProvider>().initLevel();
+    context.read<CountryProvider>().initCountries();
 
-    if (Global.instance.authLevelId == null) {
-      _selectedLevelId = -1;
-      _selectedLevelName = 'Any Degree';
-    } else {
-      _selectedLevelId = Global.instance.authLevelId;
-    }
+    // if (Global.instance.authCountryId == null) {
+    //   _selectedCountryId = -1;
+    //   _selectedCountryName = 'Any Country';
+    // } else {
+    //   _selectedCountryId = Global.instance.authCountryId;
+    // }
 
-    getCountry();
-    getLevel();
+    // if (Global.instance.authLevelId == null) {
+    //   _selectedLevelId = -1;
+    //   _selectedLevelName = 'Any Degree';
+    // } else {
+    //   _selectedLevelId = Global.instance.authLevelId;
+    // }
+
+    // getCountry();
+    // getLevel();
   }
 
   void getCountry() async {
@@ -101,6 +107,9 @@ class _AccountWidgetState extends State<AccountWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final _levelProvider = context.watch<LevelProvider>();
+    final _countryProvider = context.watch<CountryProvider>();
+
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(vertical: 7),
       child: Column(
@@ -436,24 +445,18 @@ class _AccountWidgetState extends State<AccountWidget> {
                         title: Container(
                           height: 55.0,
                           child: _dropDown(
+                              label: 'Country',
                               hint: 'Country',
-                              selectedItem: _selectedCountryName,
-                              items: countryList,
+                              items: _countryProvider.countries,
+                              selectedItem: _countryProvider.selectedCountry,
                               onChanged: (value) {
-                                setState(() {
-                                  if (value != null) {
-                                    print("nilai=" + value.toString());
-                                    var selected = countryRes.firstWhere(
-                                        (element) => element['name'] == value);
-                                    _selectedCountryId = selected['id'];
-                                    updateProfile();
-                                    _selectedCountryName = value;
-                                  } else {
-                                    _selectedCountryId = null;
-                                    updateProfile();
-                                    _selectedCountryName = 'Any Country';
-                                  }
-                                });
+                                _countryProvider.selectedCountry = value;
+                                if (value != null) {
+                                  print("nilai=" + value.toString());
+                                  _countryProvider.addDefault(context);
+                                } else {
+                                  _countryProvider.removeDefault(context);
+                                }
                               }),
                         ),
                       ),
@@ -472,20 +475,12 @@ class _AccountWidgetState extends State<AccountWidget> {
                             selectedItem: _selectedLevelName,
                             items: levelList,
                             onChanged: (value) {
-                              setState(() {
-                                if (value != null) {
-                                  print("nilai=" + value.toString());
-                                  var selected = levelRes.firstWhere(
-                                      (element) => element['name'] == value);
-                                  _selectedLevelId = selected['id'];
-                                  updateProfile();
-                                  _selectedLevelName = value;
-                                } else {
-                                  _selectedLevelId = null;
-                                  updateProfile();
-                                  _selectedLevelName = 'Any Degree';
-                                }
-                              });
+                              _levelProvider.selectedLevel = value;
+                              if (value == null) {
+                                _levelProvider.addDefault(context);
+                              } else {
+                                _levelProvider.removeDefault(context);
+                              }
                             }),
                       ),
                     ],

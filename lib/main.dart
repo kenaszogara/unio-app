@@ -1,4 +1,6 @@
 import 'package:Unio/src/providers/authentication.dart';
+import 'package:Unio/src/providers/countries.dart';
+import 'package:Unio/src/providers/level.dart';
 import 'package:Unio/src/service/navigation_service.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -12,6 +14,8 @@ void main() => runApp(
   MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+      ChangeNotifierProvider(create: (_) => LevelProvider()),
+      ChangeNotifierProvider(create: (_) => CountryProvider()),
     ],
     child: MyApp())
 );

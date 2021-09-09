@@ -1,9 +1,7 @@
 import 'dart:io';
 
 import 'package:Unio/config/ui_icons.dart';
-// import 'package:Unio/src/controllers/question_controller.dart';
 import 'package:Unio/src/models/route_argument.dart';
-import 'package:Unio/src/screens/quiz/components/option.dart';
 import 'package:Unio/src/utilities/global.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,11 +15,13 @@ class ExtraQuestionTwoScreen extends StatefulWidget {
   dynamic oldHc;
   dynamic extraHc;
   dynamic extraQuestions;
+  dynamic res;
 
   ExtraQuestionTwoScreen({Key key, this.routeArgument}) {
     oldHc = this.routeArgument.argumentsList[0];
     extraHc = this.routeArgument.argumentsList[1];
     extraQuestions = this.routeArgument.argumentsList[2];
+    res = this.routeArgument.argumentsList[3];
   }
 
   @override
@@ -33,6 +33,9 @@ class _ExtraQuestionTwoScreenState extends State<ExtraQuestionTwoScreen> {
   int order;
   bool isAnswered;
   dynamic answer;
+  int extrasLength;
+  int currItteration;
+  String _score;
 
   @override
   void initState() {
@@ -41,21 +44,29 @@ class _ExtraQuestionTwoScreenState extends State<ExtraQuestionTwoScreen> {
     order = 1;
     isAnswered = false;
     options = [];
+    extrasLength = widget.res['extra_images'].length;
+    _score = widget.res['score'];
+    currItteration = 0;
     normalizeData();
-    // extraHc = _questionController.extraHc;
-    // extraQuestions = _questionController.extraQuestions;
+    // print('test');
   }
 
   void normalizeData() {
-    for (var i = 0; i < widget.extraHc.length; i++) {
-      var type = widget.extraHc[i];
-      for (var j = 0; j < widget.extraQuestions.length; j++) {
-        if (widget.extraQuestions[j]['type'] == type) {
-          widget.extraQuestions[j]['order'] = 0;
-          options.add(widget.extraQuestions[j]);
-        }
-      }
+    dynamic extraImages = widget.extraHc[currItteration];
+    // print(extraImages);
+    for (var i = 0; i < extraImages.length; i++) {
+      // print(extraImages[i]['name']);
+
+      dynamic _op = {
+        'name': extraImages[i]['name'],
+        'type': extraImages[i]['type'],
+        'img': extraImages[i]['src'],
+        'order': 0,
+      };
+
+      options.add(_op);
     }
+    // print(options);
   }
 
   @override
@@ -104,24 +115,28 @@ class _ExtraQuestionTwoScreenState extends State<ExtraQuestionTwoScreen> {
                       'Choose one that suits you best',
                       style: Theme.of(context).textTheme.display1,
                     )),
-                ..._extras(),
+                ...(options.length == 2) ? _extrasTwo() : _extrasThree(),
                 Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // ElevatedButton(
-                      //     onPressed: () {
-                      //       resetOrder();
-                      //     },
-                      //     child: Text('Reset')),
+                      (options.length > 2)
+                          ? ElevatedButton(
+                              onPressed: () {
+                                resetOrder();
+                              },
+                              child: Text('Reset'))
+                          : SizedBox(),
                       ElevatedButton(
                           onPressed: () {
                             if (isAnswered)
                               // print(order);
                               answerExtra();
                           },
-                          child: Text('Done'))
+                          child: (currItteration < extrasLength - 1)
+                              ? Text('Next')
+                              : Text('Done'))
                     ],
                   ),
                 )
@@ -142,7 +157,7 @@ class _ExtraQuestionTwoScreenState extends State<ExtraQuestionTwoScreen> {
     return getTheRightColor(option) == kRedColor ? Icons.close : Icons.done;
   }
 
-  List<Widget> _extras() {
+  List<Widget> _extrasTwo() {
     List<Widget> _w = [];
 
     for (var i = 0; i < options.length; i++) {
@@ -150,9 +165,9 @@ class _ExtraQuestionTwoScreenState extends State<ExtraQuestionTwoScreen> {
           onTap: () {
             setState(() {
               isAnswered = true;
-              if (options[i]['order'] == 0) {
+              if (options[i]['order'] == 2 || options[i]['order'] == 0) {
                 options[i]['order'] = 1;
-                options[(i + 1) % 2]['order'] = 0;
+                options[(i + 1) % 2]['order'] = 2;
               }
             });
           },
@@ -210,58 +225,151 @@ class _ExtraQuestionTwoScreenState extends State<ExtraQuestionTwoScreen> {
     return _w;
   }
 
+  List<Widget> _extrasThree() {
+    List<Widget> _w = [];
+
+    for (var i = 0; i < options.length; i++) {
+      _w.add(GestureDetector(
+          onTap: () {
+            if (options[i]['order'] == 0) {
+              setState(() {
+                isAnswered = true;
+                if (order <= options.length) {
+                  options[i]['order'] = order;
+                  order = order + 1;
+                }
+              });
+            } else {
+              resetOrder();
+            }
+          },
+          child: Padding(
+              padding: EdgeInsets.only(top: 20, bottom: 20),
+              child: Container(
+                // width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Theme.of(context).hintColor.withOpacity(0.10),
+                        offset: Offset(0, 4),
+                        blurRadius: 10)
+                  ],
+                ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: <Widget>[
+                    (options[i]['order'] != 0)
+                        ? Positioned(
+                            top: -30,
+                            right: -30,
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: Color(0xFF007BFF),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                options[i]['order'].toString(),
+                                style: TextStyle(
+                                    color: Color(0xFFEBE8E7),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          )
+                        : SizedBox(),
+                    Column(
+                      children: [
+                        Text(options[i]['name']),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Image.network(
+                          options[i]['img'],
+                          height: 100,
+                          width: 200,
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ))));
+    }
+
+    return _w;
+  }
+
   void resetOrder() {
     setState(() {
       for (var i = 0; i < options.length; i++) {
         options[i]['order'] = 0;
       }
+      order = 1;
       isAnswered = false;
     });
   }
 
   void answerExtra() async {
-    var tempIndex;
-    String hc = '';
+    // var tempIndex;
+    String _hc = '';
+    String _answer = "";
 
-    String answer = "";
+    int _slot = 3 - _score.replaceFirst('_', '').length;
 
-    String _hcCase = widget.oldHc.replaceAll('_', "");
-    int _length = 3 - _hcCase.length;
-
-    for (int i = 0; i < _length; i++) {
-      answer = answer + options[i]['type'];
+    // sort answer by order
+    for (var i = 0, j = 1; i < _slot; i++, j++) {
+      for (var item in options) {
+        if (item['order'] == j) {
+          _answer = _answer + item['type'].toString();
+        }
+      }
     }
+    // print(_slot);
+    // print(_answer);
+    _hc = _score.replaceFirst('_', _answer);
+    print(_hc);
 
-    hc = widget.oldHc.replaceAll('_', answer);
-
-    print(hc);
-
-    try {
-      final url =
-          Uri.parse('${SERVER_DOMAIN}user/set-hc/${Global.instance.authId}');
-      final token = await storage.read(key: 'apiToken');
-      final response = await http.post(url, headers: {
-        'Authorization': 'Bearer $token',
-      }, body: {
-        'hc': hc,
+    if (currItteration < extrasLength - 1) {
+      setState(() {
+        _score = _hc;
+        currItteration++;
+        resetOrder();
+        options = [];
+        normalizeData();
       });
+    } else {
+      try {
+        final url =
+            Uri.parse('${SERVER_DOMAIN}user/set-hc/${Global.instance.authId}');
+        final token = await storage.read(key: 'apiToken');
+        final response = await http.post(url, headers: {
+          'Authorization': 'Bearer $token',
+        }, body: {
+          'hc': _hc,
+        });
 
-      print(response);
+        print(response);
 
-      // save to local storage
-      Global.instance.authHc = hc;
-      await storage.write(key: 'authHc', value: hc);
+        // save to local storage
+        Global.instance.authHc = _hc;
+        await storage.write(key: 'authHc', value: _hc);
 
-      print('${hc} added to user profile');
+        print('$_hc added to user profile');
 
-      Navigator.of(context).pushReplacementNamed('/Advice',
-          arguments: new RouteArgument(argumentsList: [
-            Category(
-                'Match With Me', UiIcons.compass, true, Colors.redAccent, []),
-            ''
-          ]));
-    } on SocketException {
-      throw 'Tidak ada koneksi internet. Silahkan coba lagi.';
+        Navigator.of(context).pushReplacementNamed('/Advice',
+            arguments: new RouteArgument(argumentsList: [
+              Category(
+                  'Match With Me', UiIcons.compass, true, Colors.redAccent, []),
+              ''
+            ]));
+      } on SocketException {
+        throw 'Tidak ada koneksi internet. Silahkan coba lagi.';
+      }
     }
   }
 }

@@ -1,5 +1,7 @@
 import 'package:Unio/main.dart';
 import 'package:Unio/src/models/uri_to_app.dart';
+import 'package:Unio/src/providers/countries.dart';
+import 'package:Unio/src/providers/level.dart';
 import 'package:Unio/src/screens/signin.dart';
 import 'dart:async';
 import 'dart:io';
@@ -10,6 +12,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uni_links/uni_links.dart';
 import '../screens/on_boarding.dart';
 import 'package:Unio/src/utilities/global.dart';
+import 'package:provider/provider.dart';
 
 class Splash extends StatefulWidget {
   @override
@@ -34,6 +37,9 @@ class _SplashState extends State<Splash> {
     getAuthData();
     // TODO: implement initState
     super.initState();
+
+    context.read<LevelProvider>().initLevel();
+    context.read<CountryProvider>().initCountries();
   }
 
   getAuthData() async {
@@ -55,10 +61,13 @@ class _SplashState extends State<Splash> {
         date != 'null' ? DateTime.parse(date) : null;
     Global.instance.authIdentity = await storage.read(key: 'authIdentity');
     Global.instance.authHc = await storage.read(key: 'authHc');
+
+    var countryId = await storage.read(key: 'authCountryId');
     Global.instance.authCountryId =
-        int.parse(await storage.read(key: 'authCountryId'));
-    Global.instance.authLevelId =
-        int.parse(await storage.read(key: 'authLevelId'));
+        countryId != null ? int.parse(countryId) : null;
+
+    var authLevelId = await storage.read(key: 'authLevelId');
+    Global.instance.authLevelId = authLevelId != null ? int.parse(authLevelId) : null;
   }
 
   // get initialUri
